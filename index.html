@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Pro | Dark Theme</title>
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Cosmic background -->
+    <div class="cosmic-bg"></div>
+    
+    <!-- Enhanced glowing edges -->
+    <div class="glow-edge glow-top"></div>
+    <div class="glow-edge glow-right"></div>
+    <div class="glow-edge glow-bottom"></div>
+    <div class="glow-edge glow-left"></div>
+    
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1 class="logo"><i class="fas fa-chart-line"></i> EXPENSE TRACKER PRO</h1>
+            <p class="tagline">FINANCIAL ANALYTICS DASHBOARD | DATA VISUALIZATION | SECURE TRACKING</p>
+            
+            <div class="contact-highlight">
+                <p><i class="fas fa-code" style="color: var(--golden); margin-right: 15px;"></i> Built with HTML5, CSS3, JavaScript & Chart.js</p>
+                <p><i class="fas fa-database" style="color: var(--golden); margin-right: 15px;"></i> Local Storage Persistence</p>
+                <p><i class="fas fa-chart-bar" style="color: var(--golden); margin-right: 15px;"></i> Real-time Data Visualization</p>
+            </div>
+        </header>
+        
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <!-- Left Panel: Input & Summary -->
+            <div class="left-panel">
+                <!-- Add Expense Form -->
+                <section class="input-card">
+                    <h2><i class="fas fa-plus-circle" style="margin-right: 15px; color: var(--golden);"></i>ADD NEW EXPENSE</h2>
+                    <form id="expenseForm">
+                        <div class="form-group">
+                            <input type="text" id="expenseName" placeholder="Expense Name (e.g., Groceries)" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="expenseAmount" placeholder="Amount ($)" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="expenseCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="food">🍕 Food & Dining</option>
+                                <option value="transport">🚗 Transport</option>
+                                <option value="shopping">🛍️ Shopping</option>
+                                <option value="entertainment">🎬 Entertainment</option>
+                                <option value="bills">💡 Bills & Utilities</option>
+                                <option value="health">🏥 Health</option>
+                                <option value="education">📚 Education</option>
+                                <option value="other">📦 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <input type="date" id="expenseDate" required>
+                        </div>
+                        <button type="submit" class="btn-add">
+                            <i class="fas fa-save"></i> ADD EXPENSE
+                        </button>
+                    </form>
+                </section>
 
+                <!-- Financial Summary -->
+                <section class="summary-card">
+                    <h2><i class="fas fa-chart-pie" style="margin-right: 15px; color: var(--golden);"></i>FINANCIAL SUMMARY</h2>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Expenses</span>
+                            <span class="stat-value" id="totalExpenses">$0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">This Month</span>
+                            <span class="stat-value" id="monthlyExpenses">$0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Average Daily</span>
+                            <span class="stat-value" id="dailyAverage">$0.00</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Top Category</span>
+                            <span class="stat-value" id="topCategory">-</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Expenses -->
+                <section class="recent-card">
+                    <h2><i class="fas fa-history" style="margin-right: 15px; color: var(--golden);"></i>RECENT EXPENSES</h2>
+                    <div class="expenses-list" id="expensesList">
+                        <p class="empty-message">No expenses yet. Add your first expense!</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Panel: Charts -->
+            <div class="right-panel">
+                <!-- Category Distribution Chart -->
+                <section class="chart-card">
+                    <h2><i class="fas fa-chart-pie" style="margin-right: 15px; color: var(--golden);"></i>SPENDING BY CATEGORY</h2>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Monthly Trend Chart -->
+                <section class="chart-card">
+                    <h2><i class="fas fa-chart-line" style="margin-right: 15px; color: var(--golden);"></i>MONTHLY SPENDING TREND</h2>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Daily Spending Chart -->
+                <section class="chart-card">
+                    <h2><i class="fas fa-calendar-alt" style="margin-right: 15px; color: var(--golden);"></i>DAILY SPENDING</h2>
+                    <div class="chart-container">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </section>
+
+                <!-- Export Controls -->
+                <section class="export-card">
+                    <h2><i class="fas fa-download" style="margin-right: 15px; color: var(--golden);"></i>DATA MANAGEMENT</h2>
+                    <div class="export-controls">
+                        <button id="exportBtn" class="btn-export">
+                            <i class="fas fa-file-export"></i> EXPORT AS CSV
+                        </button>
+                        <button id="clearBtn" class="btn-clear">
+                            <i class="fas fa-trash-alt"></i> CLEAR ALL DATA
+                        </button>
+                        <button id="sampleBtn" class="btn-sample">
+                            <i class="fas fa-magic"></i> LOAD SAMPLE DATA
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>© 2026 EXPENSE TRACKER PRO | DARK THEME ANALYTICS DASHBOARD</p>
+            <p class="signature">
+                <i class="fas fa-code"></i>
+                FINANCIAL VISUALIZATION ENGINEERED FOR CLARITY
+            </p>
+            <p style="margin-top: 20px; color: var(--text-secondary); font-size: 0.9rem;">
+                View on GitHub: <a href="https://github.com/WRLD-BTN/expense-tracker" target="_blank" style="color: var(--golden);">github.com/WRLD-BTN/expense-tracker</a>
+            </p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
