@@ -1,7 +1,7 @@
-// Expense Tracker with Identical Dark Theme
+// Expense Tracker with Ultra Dark Theme
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize particles - EXACT SAME AS PORTFOLIO
-    createEnhancedParticles();
+    // Initialize floating dollar signs
+    createFloatingDollars();
     
     // DOM Elements
     const expenseForm = document.getElementById('expenseForm');
@@ -20,17 +20,19 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chart instances
     let categoryChart, monthlyChart, dailyChart;
 
-    // Category colors matching the dark theme
-    const categoryColors = {
-        food: '#FFD700',       // Golden
-        transport: '#ff8c00',  // Dark Orange
-        shopping: '#B22222',   // Firebrick Red
-        entertainment: '#ff4500', // Orange Red
-        bills: '#00ffff',      // Cyan
-        health: '#32CD32',     // Lime Green
-        education: '#9370DB',  // Medium Purple
-        other: '#6c757d'       // Gray
-    };
+    // High contrast colors for dark background
+    const categoryColors = [
+        '#FFD700',    // Golden
+        '#ff8c00',    // Dark Orange
+        '#B22222',    // Firebrick Red
+        '#ff4500',    // Orange Red
+        '#00ffff',    // Cyan
+        '#32CD32',    // Lime Green
+        '#9370DB',    // Medium Purple
+        '#FF69B4',    // Hot Pink
+        '#00CED1',    // Dark Turquoise
+        '#FF6347'     // Tomato
+    ];
 
     // Category icons
     const categoryIcons = {
@@ -67,14 +69,31 @@ document.addEventListener('DOMContentLoaded', function() {
         updateCharts();
         setupEventListeners();
         
-        // Add scroll effect for glow intensity - EXACT SAME AS PORTFOLIO
-        setupScrollEffects();
+        // Add pulsing effect for edges
+        setupGlowEffects();
     }
 
-    // Setup event listeners
-    function setupEventListeners() {
-        expenseForm.addEventListener('submit', handleAddExpense);
-        exportBtn.addEventListener('click', exportToCSV);
-        clearBtn.addEventListener('click', clearAllData);
-        sampleBtn.addEventListener('click', loadSampleData);
-    }
+    // Create floating dollar signs
+    function createFloatingDollars() {
+        const container = document.getElementById('floatingDollars');
+        const dollarCount = 25;
+        
+        for (let i = 0; i < dollarCount; i++) {
+            const dollar = document.createElement('div');
+            dollar.classList.add('dollar-sign');
+            
+            // Alternate colors
+            if (i % 3 === 0) {
+                dollar.classList.add('red');
+            }
+            
+            // Random position
+            dollar.style.left = Math.random() * 100 + '%';
+            dollar.style.top = Math.random() * 100 + '%';
+            
+            // Random size
+            const size = Math.random() * 2 + 1;
+            dollar.style.fontSize = size + 'rem';
+            
+            // Random animation
+            const duration = Math.random() * 30 +
