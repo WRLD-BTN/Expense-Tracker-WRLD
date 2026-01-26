@@ -1,7 +1,7 @@
-/* Import modern fonts - EXACT SAME AS PORTFOLIO */
+/* Import modern fonts */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Montserrat:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap');
 
-/* EXACT SAME CSS VARIABLES AS PORTFOLIO */
+/* Ultra Dark Theme Variables */
 :root {
     --golden: #FFD700;
     --golden-glow: rgba(255, 215, 0, 0.9);
@@ -16,7 +16,7 @@
     --text-primary: #f0f0f0;
     --text-secondary: #d0d0d0;
     --accent: #00ffff;
-    --glow-intensity: 0.8;
+    --chart-colors: #FFD700, #ff8c00, #B22222, #ff4500, #00ffff, #32CD32, #9370DB, #6c757d;
 }
 
 * {
@@ -25,7 +25,6 @@
     box-sizing: border-box;
 }
 
-/* EXACT SAME BODY STYLING AS PORTFOLIO */
 body {
     font-family: 'Montserrat', sans-serif;
     background: var(--black);
@@ -34,12 +33,9 @@ body {
     position: relative;
     min-height: 100vh;
     line-height: 1.7;
-    background-image: 
-        radial-gradient(circle at 10% 20%, rgba(30, 30, 30, 0.1) 0%, transparent 20%),
-        radial-gradient(circle at 90% 80%, rgba(40, 40, 40, 0.1) 0%, transparent 20%);
 }
 
-/* EXACT SAME COSMIC BACKGROUND AS PORTFOLIO */
+/* Cosmic background effect */
 .cosmic-bg {
     position: fixed;
     top: 0;
@@ -52,7 +48,7 @@ body {
     opacity: 0.9;
 }
 
-/* EXACT SAME GLOWING EDGES AS PORTFOLIO */
+/* Enhanced glowing edges with high contrast */
 .glow-edge {
     position: fixed;
     pointer-events: none;
@@ -132,15 +128,46 @@ body {
     animation: glow-pulse 4.5s ease-in-out infinite reverse;
 }
 
-/* EXACT SAME CONTAINER STYLING AS PORTFOLIO */
+/* Floating dollar signs */
+.floating-dollars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.dollar-sign {
+    position: absolute;
+    color: var(--golden);
+    font-size: 2rem;
+    font-weight: bold;
+    text-shadow: 
+        0 0 20px var(--golden-glow),
+        0 0 40px var(--golden-glow);
+    opacity: 0.7;
+    animation: floatDollar 25s linear infinite;
+}
+
+.dollar-sign.red {
+    color: var(--red-glow);
+    text-shadow: 
+        0 0 20px var(--red-glow),
+        0 0 40px var(--red-glow);
+}
+
+/* Main container */
 .container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: 50px 20px;
     position: relative;
 }
 
-/* EXACT SAME HEADER STYLING AS PORTFOLIO */
+/* Ultra-dark header */
 header {
     text-align: center;
     padding: 60px 0;
@@ -151,9 +178,11 @@ header {
     box-shadow: 
         0 0 30px rgba(255, 215, 0, 0.1),
         inset 0 0 30px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
 }
 
-/* EXACT SAME LOGO STYLING AS PORTFOLIO */
+/* Enhanced logo with sharp contrast */
 .logo {
     font-family: 'Orbitron', sans-serif;
     font-size: 3.2rem;
@@ -174,7 +203,7 @@ header {
     letter-spacing: 1px;
 }
 
-/* EXACT SAME TAGLINE STYLING AS PORTFOLIO */
+/* High contrast tagline */
 .tagline {
     font-family: 'JetBrains Mono', monospace;
     color: var(--text-bright);
@@ -185,7 +214,7 @@ header {
     font-weight: 600;
 }
 
-/* EXACT SAME CONTACT HIGHLIGHT AS PORTFOLIO */
+/* Contact info with high visibility */
 .contact-highlight {
     display: inline-block;
     padding: 20px 40px;
@@ -205,7 +234,7 @@ header {
     font-weight: 600;
 }
 
-/* Dashboard Layout for Expense Tracker */
+/* Dashboard Layout */
 .dashboard {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
@@ -219,19 +248,39 @@ header {
     }
 }
 
-/* EXACT SAME SECTION STYLING AS PORTFOLIO */
+/* Ultra-dark sections with glowing borders */
 section {
-    background: rgba(10, 10, 10, 0.95);
+    background: rgba(5, 5, 5, 0.95);
     backdrop-filter: blur(15px);
     border-radius: 18px;
-    padding: 50px;
-    margin: 40px 0;
+    padding: 40px;
+    margin-bottom: 35px;
     position: relative;
     border: 1px solid rgba(255, 215, 0, 0.15);
     box-shadow: 
         0 10px 30px rgba(0, 0, 0, 0.5),
         inset 0 0 20px rgba(0, 0, 0, 0.7);
     transition: all 0.4s ease;
+    overflow: hidden;
+}
+
+.section-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 18px;
+    background: linear-gradient(45deg, 
+        transparent, 
+        var(--golden-glow), 
+        var(--red-glow), 
+        var(--golden-glow), 
+        transparent);
+    z-index: -1;
+    filter: blur(15px);
+    opacity: 0.3;
+    animation: border-glow 8s linear infinite;
 }
 
 section:hover {
@@ -243,33 +292,12 @@ section:hover {
     border-color: var(--golden);
 }
 
-/* EXACT SAME SECTION GLOW AS PORTFOLIO */
-section::before {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border-radius: 21px;
-    background: linear-gradient(45deg, 
-        var(--golden), 
-        var(--red-glow), 
-        var(--golden), 
-        var(--red-glow), 
-        var(--golden));
-    z-index: -1;
-    filter: blur(15px);
-    opacity: 0.5;
-    animation: section-glow 8s linear infinite;
-}
-
-/* EXACT SAME HEADING STYLING AS PORTFOLIO */
+/* High contrast section headings */
 h2 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2.3rem;
+    font-size: 1.8rem;
     color: var(--text-bright);
-    margin-bottom: 35px;
+    margin-bottom: 30px;
     padding-bottom: 15px;
     border-bottom: 3px solid var(--golden);
     position: relative;
@@ -282,14 +310,13 @@ h2::after {
     position: absolute;
     bottom: -3px;
     left: 0;
-    width: 150px;
+    width: 120px;
     height: 3px;
     background: linear-gradient(90deg, var(--golden), var(--red-glow), var(--golden));
     box-shadow: 0 0 20px var(--golden-glow);
 }
 
-/* Expense Tracker Specific Styles */
-/* Form Styles - Matching Portfolio Theme */
+/* Form Styles */
 .form-group {
     margin-bottom: 25px;
 }
@@ -302,7 +329,7 @@ h2::after {
     border: 2px solid rgba(255, 215, 0, 0.2);
     border-radius: 10px;
     color: var(--text-bright);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-family: 'Montserrat', sans-serif;
     transition: all 0.3s ease;
 }
@@ -346,7 +373,7 @@ h2::after {
     margin-right: 10px;
 }
 
-/* Summary Stats - Using Portfolio's Project Card Design */
+/* Summary Stats */
 .summary-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -397,7 +424,7 @@ h2::after {
     color: var(--accent);
 }
 
-/* Expenses List - Using Portfolio's Project Card Design */
+/* Expenses List */
 .expenses-list {
     max-height: 400px;
     overflow-y: auto;
@@ -504,7 +531,7 @@ h2::after {
     font-size: 1.1rem;
 }
 
-/* Chart Containers */
+/* Chart Containers with High Contrast */
 .chart-container {
     height: 320px;
     position: relative;
@@ -514,7 +541,7 @@ h2::after {
     border: 1px solid rgba(255, 215, 0, 0.1);
 }
 
-/* Export Controls - Using Portfolio's Skill Tag Design */
+/* Export Controls */
 .export-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -561,7 +588,7 @@ h2::after {
         0 0 30px rgba(255, 215, 0, 0.3);
 }
 
-/* EXACT SAME FOOTER STYLING AS PORTFOLIO */
+/* Enhanced footer */
 footer {
     text-align: center;
     padding: 40px;
@@ -597,27 +624,7 @@ footer a:hover {
     text-shadow: 0 0 20px var(--accent);
 }
 
-/* EXACT SAME PARTICLES AS PORTFOLIO */
-.particle {
-    position: fixed;
-    pointer-events: none;
-    z-index: -2;
-    border-radius: 50%;
-    background: var(--golden);
-    box-shadow: 
-        0 0 20px var(--golden-glow),
-        0 0 40px var(--golden-glow);
-    animation: float 25s infinite linear;
-}
-
-.particle.red {
-    background: var(--red-glow);
-    box-shadow: 
-        0 0 20px var(--red-glow),
-        0 0 40px var(--red-glow);
-}
-
-/* EXACT SAME ANIMATIONS AS PORTFOLIO */
+/* Animations */
 @keyframes glow-pulse {
     0%, 100% { 
         opacity: 0.8;
@@ -629,7 +636,7 @@ footer a:hover {
     }
 }
 
-@keyframes section-glow {
+@keyframes border-glow {
     0% { 
         background-position: 0% 50%;
         opacity: 0.4;
@@ -644,26 +651,26 @@ footer a:hover {
     }
 }
 
-@keyframes float {
+@keyframes floatDollar {
     0% {
-        transform: translateY(100vh) translateX(-100px) scale(0.5);
+        transform: translateY(100vh) translateX(-100px) rotate(0deg) scale(0.5);
         opacity: 0;
     }
     10% {
-        opacity: 1;
+        opacity: 0.7;
     }
     90% {
-        opacity: 1;
+        opacity: 0.7;
     }
     100% {
-        transform: translateY(-100px) translateX(100px) scale(1.5);
+        transform: translateY(-100px) translateX(100px) rotate(360deg) scale(1.5);
         opacity: 0;
     }
 }
 
-/* EXACT SAME SCROLLBAR AS PORTFOLIO */
+/* High contrast scrollbar */
 ::-webkit-scrollbar {
-    width: 12px;
+    width: 10px;
     background: var(--black);
 }
 
@@ -682,7 +689,7 @@ footer a:hover {
     background: linear-gradient(var(--golden-glow), var(--red-glow));
 }
 
-/* EXACT SAME RESPONSIVE DESIGN AS PORTFOLIO */
+/* Responsive design */
 @media (max-width: 768px) {
     .container {
         padding: 20px 15px;
@@ -690,7 +697,7 @@ footer a:hover {
     
     section {
         padding: 30px 20px;
-        margin: 40px 0;
+        margin-bottom: 25px;
     }
     
     .logo {
