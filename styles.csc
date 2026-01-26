@@ -1,6 +1,7 @@
-/* Import modern fonts */
+/* Import modern fonts - EXACT SAME AS PORTFOLIO */
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Montserrat:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap');
 
+/* EXACT SAME CSS VARIABLES AS PORTFOLIO */
 :root {
     --golden: #FFD700;
     --golden-glow: rgba(255, 215, 0, 0.9);
@@ -24,6 +25,7 @@
     box-sizing: border-box;
 }
 
+/* EXACT SAME BODY STYLING AS PORTFOLIO */
 body {
     font-family: 'Montserrat', sans-serif;
     background: var(--black);
@@ -37,7 +39,7 @@ body {
         radial-gradient(circle at 90% 80%, rgba(40, 40, 40, 0.1) 0%, transparent 20%);
 }
 
-/* Cosmic background effect */
+/* EXACT SAME COSMIC BACKGROUND AS PORTFOLIO */
 .cosmic-bg {
     position: fixed;
     top: 0;
@@ -50,7 +52,7 @@ body {
     opacity: 0.9;
 }
 
-/* Enhanced glowing edges with high contrast */
+/* EXACT SAME GLOWING EDGES AS PORTFOLIO */
 .glow-edge {
     position: fixed;
     pointer-events: none;
@@ -130,15 +132,15 @@ body {
     animation: glow-pulse 4.5s ease-in-out infinite reverse;
 }
 
-/* Main container with high contrast */
+/* EXACT SAME CONTAINER STYLING AS PORTFOLIO */
 .container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 50px 20px;
     position: relative;
 }
 
-/* Ultra-dark header */
+/* EXACT SAME HEADER STYLING AS PORTFOLIO */
 header {
     text-align: center;
     padding: 60px 0;
@@ -151,7 +153,7 @@ header {
         inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Enhanced logo with sharp contrast */
+/* EXACT SAME LOGO STYLING AS PORTFOLIO */
 .logo {
     font-family: 'Orbitron', sans-serif;
     font-size: 3.2rem;
@@ -172,7 +174,7 @@ header {
     letter-spacing: 1px;
 }
 
-/* High contrast tagline */
+/* EXACT SAME TAGLINE STYLING AS PORTFOLIO */
 .tagline {
     font-family: 'JetBrains Mono', monospace;
     color: var(--text-bright);
@@ -183,7 +185,7 @@ header {
     font-weight: 600;
 }
 
-/* Contact info with high visibility */
+/* EXACT SAME CONTACT HIGHLIGHT AS PORTFOLIO */
 .contact-highlight {
     display: inline-block;
     padding: 20px 40px;
@@ -203,7 +205,7 @@ header {
     font-weight: 600;
 }
 
-/* Dashboard Layout */
+/* Dashboard Layout for Expense Tracker */
 .dashboard {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
@@ -217,13 +219,13 @@ header {
     }
 }
 
-/* Ultra-dark sections with glowing borders */
+/* EXACT SAME SECTION STYLING AS PORTFOLIO */
 section {
     background: rgba(10, 10, 10, 0.95);
     backdrop-filter: blur(15px);
     border-radius: 18px;
-    padding: 40px;
-    margin-bottom: 35px;
+    padding: 50px;
+    margin: 40px 0;
     position: relative;
     border: 1px solid rgba(255, 215, 0, 0.15);
     box-shadow: 
@@ -241,7 +243,7 @@ section:hover {
     border-color: var(--golden);
 }
 
-/* Enhanced section glow effect */
+/* EXACT SAME SECTION GLOW AS PORTFOLIO */
 section::before {
     content: '';
     position: absolute;
@@ -262,12 +264,12 @@ section::before {
     animation: section-glow 8s linear infinite;
 }
 
-/* High contrast section headings */
+/* EXACT SAME HEADING STYLING AS PORTFOLIO */
 h2 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.8rem;
+    font-size: 2.3rem;
     color: var(--text-bright);
-    margin-bottom: 30px;
+    margin-bottom: 35px;
     padding-bottom: 15px;
     border-bottom: 3px solid var(--golden);
     position: relative;
@@ -280,13 +282,14 @@ h2::after {
     position: absolute;
     bottom: -3px;
     left: 0;
-    width: 120px;
+    width: 150px;
     height: 3px;
     background: linear-gradient(90deg, var(--golden), var(--red-glow), var(--golden));
     box-shadow: 0 0 20px var(--golden-glow);
 }
 
-/* Form Styles */
+/* Expense Tracker Specific Styles */
+/* Form Styles - Matching Portfolio Theme */
 .form-group {
     margin-bottom: 25px;
 }
@@ -299,7 +302,7 @@ h2::after {
     border: 2px solid rgba(255, 215, 0, 0.2);
     border-radius: 10px;
     color: var(--text-bright);
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-family: 'Montserrat', sans-serif;
     transition: all 0.3s ease;
 }
@@ -343,7 +346,7 @@ h2::after {
     margin-right: 10px;
 }
 
-/* Summary Stats */
+/* Summary Stats - Using Portfolio's Project Card Design */
 .summary-stats {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -394,7 +397,7 @@ h2::after {
     color: var(--accent);
 }
 
-/* Expenses List */
+/* Expenses List - Using Portfolio's Project Card Design */
 .expenses-list {
     max-height: 400px;
     overflow-y: auto;
@@ -511,7 +514,7 @@ h2::after {
     border: 1px solid rgba(255, 215, 0, 0.1);
 }
 
-/* Export Controls */
+/* Export Controls - Using Portfolio's Skill Tag Design */
 .export-controls {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -558,7 +561,7 @@ h2::after {
         0 0 30px rgba(255, 215, 0, 0.3);
 }
 
-/* Enhanced footer */
+/* EXACT SAME FOOTER STYLING AS PORTFOLIO */
 footer {
     text-align: center;
     padding: 40px;
@@ -594,7 +597,7 @@ footer a:hover {
     text-shadow: 0 0 20px var(--accent);
 }
 
-/* Floating particles with enhanced glow */
+/* EXACT SAME PARTICLES AS PORTFOLIO */
 .particle {
     position: fixed;
     pointer-events: none;
@@ -614,7 +617,7 @@ footer a:hover {
         0 0 40px var(--red-glow);
 }
 
-/* Enhanced animations */
+/* EXACT SAME ANIMATIONS AS PORTFOLIO */
 @keyframes glow-pulse {
     0%, 100% { 
         opacity: 0.8;
@@ -658,9 +661,9 @@ footer a:hover {
     }
 }
 
-/* High contrast scrollbar */
+/* EXACT SAME SCROLLBAR AS PORTFOLIO */
 ::-webkit-scrollbar {
-    width: 10px;
+    width: 12px;
     background: var(--black);
 }
 
@@ -679,7 +682,7 @@ footer a:hover {
     background: linear-gradient(var(--golden-glow), var(--red-glow));
 }
 
-/* Responsive design */
+/* EXACT SAME RESPONSIVE DESIGN AS PORTFOLIO */
 @media (max-width: 768px) {
     .container {
         padding: 20px 15px;
@@ -687,7 +690,7 @@ footer a:hover {
     
     section {
         padding: 30px 20px;
-        margin-bottom: 25px;
+        margin: 40px 0;
     }
     
     .logo {
