@@ -155,4 +155,5 @@ function loadSampleData() {
     updateSummary();
     updateCharts();
     alert('Sample data loaded');
+    
 }
