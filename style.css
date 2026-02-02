@@ -748,3 +748,121 @@ footer a:hover {
         font-size: 1rem;
     }
 }
+/* ========== AUTHENTICATION STYLES ========== */
+/* Login Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: rgba(10, 10, 10, 0.95);
+    width: 90%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 40px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.3);
+}
+
+.modal-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.modal-header h2 {
+    color: var(--golden);
+    border: none;
+    margin-bottom: 10px;
+}
+
+.modal-header h2::after {
+    display: none;
+}
+
+.login-form .form-group {
+    margin-bottom: 20px;
+}
+
+.login-form label {
+    display: block;
+    color: var(--golden);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.login-form input {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(255, 215, 0, 0.2);
+    border-radius: 8px;
+    color: white;
+}
+
+.login-form input:focus {
+    border-color: var(--golden);
+    box-shadow: 0 0 15px var(--golden-glow);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 38px;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.btn-login, .btn-register {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--golden), var(--deep-red));
+    color: black;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-secondary);
+}
+
+.register-link a {
+    color: var(--golden);
+    text-decoration: none;
+}
+
+/* User Info */
+.user-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--golden);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--golden), var(--deep-red));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: black;
+}
