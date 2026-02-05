@@ -3,75 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💰 Expense Tracker Pro | WEBWRLD DESIGNS</title>
+    <title>💰 Expense Tracker Pro | Secure Login</title>
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Deployment version tag -->
+    <meta name="version" content="auth-v1.0-20240126">
 </head>
 <body>
     <!-- Login Modal -->
-<div id="loginModal" class="modal" style="display: flex;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2><i class="fas fa-lock" style="margin-right: 15px; color: var(--golden);"></i>EXPENSE TRACKER PRO</h2>
-            <p class="tagline">SECURE FINANCIAL DASHBOARD</p>
-        </div>
-        
-        <div class="login-form">
-            <div class="form-group">
-                <label for="username"><i class="fas fa-user"></i> Username</label>
-                <input type="text" id="username" placeholder="Enter username">
+    <div id="loginModal" class="modal" style="display: flex;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-lock" style="margin-right: 15px; color: #FFD700;"></i>EXPENSE TRACKER PRO</h2>
+                <p class="tagline">SECURE FINANCIAL DASHBOARD</p>
             </div>
             
-            <div class="form-group">
-                <label for="password"><i class="fas fa-key"></i> Password</label>
-                <input type="password" id="password" placeholder="Enter password">
-                <div class="password-toggle">
-                    <i class="fas fa-eye" id="togglePassword"></i>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="username" placeholder="Enter username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-key"></i> Password</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                    <div class="password-toggle">
+                        <i class="fas fa-eye" id="togglePassword"></i>
+                    </div>
+                </div>
+                
+                <button id="loginBtn" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> LOGIN TO DASHBOARD
+                </button>
+                
+                <div class="register-link">
+                    <p>New user? <a href="#" id="showRegister">Create Account</a></p>
                 </div>
             </div>
-            
-            <button id="loginBtn" class="btn-login">
-                <i class="fas fa-sign-in-alt"></i> LOGIN TO DASHBOARD
-            </button>
-            
-            <div class="register-link">
-                <p>New user? <a href="#" id="showRegister">Create Account</a></p>
-            </div>
         </div>
     </div>
-</div>
 
-<!-- Registration Modal -->
-<div id="registerModal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2><i class="fas fa-user-plus" style="margin-right: 15px; color: var(--golden);"></i>CREATE ACCOUNT</h2>
-            <p class="tagline">SECURE YOUR FINANCIAL DATA</p>
-        </div>
-        
-        <div class="login-form">
-            <div class="form-group">
-                <label for="regUsername"><i class="fas fa-user"></i> Username</label>
-                <input type="text" id="regUsername" placeholder="Choose username">
+    <!-- Registration Modal -->
+    <div id="registerModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus" style="margin-right: 15px; color: #FFD700;"></i>CREATE ACCOUNT</h2>
+                <p class="tagline">SECURE YOUR FINANCIAL DATA</p>
             </div>
             
-            <div class="form-group">
-                <label for="regPassword"><i class="fas fa-key"></i> Password</label>
-                <input type="password" id="regPassword" placeholder="Create password">
-            </div>
-            
-            <button id="registerBtn" class="btn-register">
-                <i class="fas fa-user-plus"></i> CREATE ACCOUNT
-            </button>
-            
-            <div class="register-link">
-                <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="regUsername"><i class="fas fa-user"></i> Username</label>
+                    <input type="text" id="regUsername" placeholder="Choose username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="regPassword"><i class="fas fa-key"></i> Password</label>
+                    <input type="password" id="regPassword" placeholder="Create password">
+                </div>
+                
+                <button id="registerBtn" class="btn-register">
+                    <i class="fas fa-user-plus"></i> CREATE ACCOUNT
+                </button>
+                
+                <div class="register-link">
+                    <p>Already have an account? <a href="#" id="showLogin">Login</a></p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+    
     <!-- Cosmic background -->
     <div class="cosmic-bg"></div>
     
@@ -84,22 +87,24 @@
     <!-- Floating dollar signs background -->
     <div class="floating-dollars" id="floatingDollars"></div>
     
+    <!-- Main Content Container (hidden until login) -->
     <div class="container" style="display: none;">
         <!-- Header -->
         <header>
-            <!-- Add this inside your header -->
-<div class="logout-container" style="position: absolute; top: 20px; right: 20px;">
-    <button id="logoutBtn" style="background: rgba(255,50,50,0.1); border: 1px solid rgba(255,50,50,0.3); color: var(--red-glow); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-sign-out-alt"></i> LOGOUT
-    </button>
-</div>
+            <div class="user-info" id="userInfo" style="display: none;"></div>
+            <div class="logout-container">
+                <button id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
+                </button>
+            </div>
+            
             <h1 class="logo"><i class="fas fa-chart-line"></i> EXPENSE TRACKER PRO</h1>
             <p class="tagline">FINANCIAL ANALYTICS DASHBOARD | DATA VISUALIZATION | SECURE TRACKING</p>
             
             <div class="contact-highlight">
-                <p><i class="fas fa-code" style="color: var(--golden); margin-right: 15px;"></i> Built with HTML5, CSS3, JavaScript & Chart.js</p>
-                <p><i class="fas fa-database" style="color: var(--golden); margin-right: 15px;"></i> Local Storage Persistence</p>
-                <p><i class="fas fa-chart-bar" style="color: var(--golden); margin-right: 15px;"></i> Real-time Data Visualization</p>
+                <p><i class="fas fa-code" style="color: #FFD700; margin-right: 15px;"></i> Built with HTML5, CSS3, JavaScript & Chart.js</p>
+                <p><i class="fas fa-database" style="color: #FFD700; margin-right: 15px;"></i> User Authentication System</p>
+                <p><i class="fas fa-chart-bar" style="color: #FFD700; margin-right: 15px;"></i> Real-time Data Visualization</p>
             </div>
         </header>
         
@@ -110,7 +115,7 @@
                 <!-- Add Expense Form -->
                 <section class="input-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-plus-circle" style="margin-right: 15px; color: var(--golden);"></i>ADD NEW EXPENSE</h2>
+                    <h2><i class="fas fa-plus-circle" style="margin-right: 15px; color: #FFD700;"></i>ADD NEW EXPENSE</h2>
                     <form id="expenseForm">
                         <div class="form-group">
                             <input type="text" id="expenseName" placeholder="Expense Name (e.g., Groceries)" required>
@@ -143,7 +148,7 @@
                 <!-- Financial Summary -->
                 <section class="summary-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-chart-pie" style="margin-right: 15px; color: var(--golden);"></i>FINANCIAL SUMMARY</h2>
+                    <h2><i class="fas fa-chart-pie" style="margin-right: 15px; color: #FFD700;"></i>FINANCIAL SUMMARY</h2>
                     <div class="summary-stats">
                         <div class="stat-item">
                             <span class="stat-label">Total Expenses</span>
@@ -167,7 +172,7 @@
                 <!-- Recent Expenses -->
                 <section class="recent-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-history" style="margin-right: 15px; color: var(--golden);"></i>RECENT EXPENSES</h2>
+                    <h2><i class="fas fa-history" style="margin-right: 15px; color: #FFD700;"></i>RECENT EXPENSES</h2>
                     <div class="expenses-list" id="expensesList">
                         <p class="empty-message">No expenses yet. Add your first expense!</p>
                     </div>
@@ -179,7 +184,7 @@
                 <!-- Category Distribution Chart -->
                 <section class="chart-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-chart-pie" style="margin-right: 15px; color: var(--golden);"></i>SPENDING BY CATEGORY</h2>
+                    <h2><i class="fas fa-chart-pie" style="margin-right: 15px; color: #FFD700;"></i>SPENDING BY CATEGORY</h2>
                     <div class="chart-container">
                         <canvas id="categoryChart"></canvas>
                     </div>
@@ -188,7 +193,7 @@
                 <!-- Monthly Trend Chart -->
                 <section class="chart-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-chart-line" style="margin-right: 15px; color: var(--golden);"></i>MONTHLY SPENDING TREND</h2>
+                    <h2><i class="fas fa-chart-line" style="margin-right: 15px; color: #FFD700;"></i>MONTHLY SPENDING TREND</h2>
                     <div class="chart-container">
                         <canvas id="monthlyChart"></canvas>
                     </div>
@@ -197,7 +202,7 @@
                 <!-- Daily Spending Chart -->
                 <section class="chart-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-calendar-alt" style="margin-right: 15px; color: var(--golden);"></i>DAILY SPENDING</h2>
+                    <h2><i class="fas fa-calendar-alt" style="margin-right: 15px; color: #FFD700;"></i>DAILY SPENDING</h2>
                     <div class="chart-container">
                         <canvas id="dailyChart"></canvas>
                     </div>
@@ -206,7 +211,7 @@
                 <!-- Export Controls -->
                 <section class="export-card">
                     <div class="section-border"></div>
-                    <h2><i class="fas fa-download" style="margin-right: 15px; color: var(--golden);"></i>DATA MANAGEMENT</h2>
+                    <h2><i class="fas fa-download" style="margin-right: 15px; color: #FFD700;"></i>DATA MANAGEMENT</h2>
                     <div class="export-controls">
                         <button id="exportBtn" class="btn-export">
                             <i class="fas fa-file-export"></i> EXPORT AS CSV
@@ -224,17 +229,26 @@
 
         <!-- Footer -->
         <footer>
-            <p>© 2026 EXPENSE TRACKER PRO | DARK THEME ANALYTICS DASHBOARD</p>
+            <p>© 2024 EXPENSE TRACKER PRO | SECURE AUTHENTICATION DASHBOARD</p>
             <p class="signature">
                 <i class="fas fa-code"></i>
                 FINANCIAL VISUALIZATION ENGINEERED FOR CLARITY
             </p>
-            <p style="margin-top: 20px; color: var(--text-secondary); font-size: 0.9rem;">
-                View on GitHub: <a href="https://github.com/WRLD-BTN/expense-tracker" target="_blank" style="color: var(--golden);">github.com/WRLD-BTN/expense-tracker</a>
+            <p style="margin-top: 20px; color: #d0d0d0; font-size: 0.9rem;">
+                View on GitHub: <a href="https://github.com/WRLD-BTN/Expense-Tracker-WRLD" target="_blank" style="color: #FFD700;">github.com/WRLD-BTN/Expense-Tracker-WRLD</a>
             </p>
         </footer>
     </div>
+
+    <!-- JavaScript Files -->
     <script src="auth.js"></script>
     <script src="script.js"></script>
+    
+    <!-- Deployment success check -->
+    <script>
+        console.log("✅ Expense Tracker Pro v1.0 - Authentication System Loaded");
+        console.log("📅 Deployment: 2024-01-26");
+        console.log("🔒 Features: User Login, Registration, Secure Data Storage");
+    </script>
 </body>
 </html>
