@@ -1,693 +1,357 @@
-// Expense Tracker with Ultra Dark Theme
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize floating dollar signs
-    createFloatingDollars();
+// auth.js - Authentication System for Expense Tracker
+class AuthSystem {
+    constructor() {
+        this.users = this.loadUsers();
+        this.currentUser = this.getCurrentUser();
+        this.initAuth();
+    }
     
-    // DOM Elements
-    const expenseForm = document.getElementById('expenseForm');
-    const expensesList = document.getElementById('expensesList');
-    const totalExpensesEl = document.getElementById('totalExpenses');
-    const monthlyExpensesEl = document.getElementById('monthlyExpenses');
-    const dailyAverageEl = document.getElementById('dailyAverage');
-    const topCategoryEl = document.getElementById('topCategory');
-    const exportBtn = document.getElementById('exportBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const sampleBtn = document.getElementById('sampleBtn');
-
-    // Initialize expenses from localStorage or empty array
-    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
-
-    // Chart instances
-    let categoryChart, monthlyChart, dailyChart;
-
-    // High contrast colors for dark background
-    const categoryColors = [
-        '#FFD700',    // Golden
-        '#ff8c00',    // Dark Orange
-        '#B22222',    // Firebrick Red
-        '#ff4500',    // Orange Red
-        '#00ffff',    // Cyan
-        '#32CD32',    // Lime Green
-        '#9370DB',    // Medium Purple
-        '#FF69B4',    // Hot Pink
-        '#00CED1',    // Dark Turquoise
-        '#FF6347'     // Tomato
-    ];
-
-    // Category icons
-    const categoryIcons = {
-        food: '🍕',
-        transport: '🚗',
-        shopping: '🛍️',
-        entertainment: '🎬',
-        bills: '💡',
-        health: '🏥',
-        education: '📚',
-        other: '📦'
-    };
-
-    // Category labels
-    const categoryLabels = {
-        food: 'Food & Dining',
-        transport: 'Transport',
-        shopping: 'Shopping',
-        entertainment: 'Entertainment',
-        bills: 'Bills & Utilities',
-        health: 'Health',
-        education: 'Education',
-        other: 'Other'
-    };
-
-    // =================== SET CURRENT DATE AS DEFAULT ===================
-    function setDefaultDate() {
-        const today = new Date();
-        const dateInput = document.getElementById('expenseDate');
-        
-        // Format date as YYYY-MM-DD
-        const formattedDate = today.toISOString().split('T')[0];
-        dateInput.value = formattedDate;
-        dateInput.min = '2000-01-01'; // Set minimum date
-        dateInput.max = formattedDate; // Can't select future dates
+    // Simple password hashing (for demo - use bcrypt in production)
+    hashPassword(password) {
+        let hash = 0;
+        for (let i = 0; i < password.length; i++) {
+            const char = password.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return hash.toString(36) + Date.now().toString(36);
     }
-
-    // Initialize the app
-    function initApp() {
-        setDefaultDate(); // Set current date as default
-        renderExpenses();
-        updateSummary();
-        initializeCharts();
-        updateCharts();
-        setupEventListeners();
-        
-        // Add pulsing effect for edges
-        setupGlowEffects();
-    }
-
-    // Create floating dollar signs
-    function createFloatingDollars() {
-        const container = document.getElementById('floatingDollars');
-        const dollarCount = 25;
-        
-        for (let i = 0; i < dollarCount; i++) {
-            const dollar = document.createElement('div');
-            dollar.classList.add('dollar-sign');
-            
-            // Alternate colors
-            if (i % 3 === 0) {
-                dollar.classList.add('red');
-            }
-            
-            // Random position
-            dollar.style.left = Math.random() * 100 + '%';
-            dollar.style.top = Math.random() * 100 + '%';
-            
-            // Random size
-            const size = Math.random() * 2 + 1;
-            dollar.style.fontSize = size + 'rem';
-            
-            // Random animation
-            const duration = Math.random() * 30 + 20;
-            const delay = Math.random() * 10;
-            dollar.style.animationDuration = duration + 's';
-            dollar.style.animationDelay = delay + 's';
-            
-            // Random movement
-            const xStart = Math.random() * 200 - 100;
-            const xEnd = Math.random() * 200 - 100;
-            
-            const keyframes = `
-                @keyframes floatDollar-${i} {
-                    0% {
-                        transform: translateY(100vh) translateX(${xStart}px) rotate(0deg) scale(0.5);
-                        opacity: 0;
-                    }
-                    10% {
-                        opacity: 0.7;
-                    }
-                    90% {
-                        opacity: 0.7;
-                    }
-                    100% {
-                        transform: translateY(-100px) translateX(${xEnd}px) rotate(360deg) scale(1.5);
-                        opacity: 0;
-                    }
-                }
-            `;
-            
-            const style = document.createElement('style');
-            style.textContent = keyframes;
-            document.head.appendChild(style);
-            
-            dollar.style.animationName = `floatDollar-${i}`;
-            dollar.textContent = '$';
-            
-            container.appendChild(dollar);
+    
+    // Load users from localStorage
+    loadUsers() {
+        try {
+            const users = localStorage.getItem('expenseTrackerUsers');
+            return users ? JSON.parse(users) : [];
+        } catch (e) {
+            console.error('Error loading users:', e);
+            return [];
         }
     }
-
-    // Setup event listeners
-    function setupEventListeners() {
-        expenseForm.addEventListener('submit', handleAddExpense);
-        exportBtn.addEventListener('click', exportToCSV);
-        clearBtn.addEventListener('click', clearAllData);
-        sampleBtn.addEventListener('click', loadSampleData);
+    
+    // Save users to localStorage
+    saveUsers() {
+        try {
+            localStorage.setItem('expenseTrackerUsers', JSON.stringify(this.users));
+        } catch (e) {
+            console.error('Error saving users:', e);
+        }
     }
-
-    // Setup glow effects
-    function setupGlowEffects() {
-        setInterval(() => {
-            const edges = document.querySelectorAll('.glow-edge');
-            edges.forEach(edge => {
-                edge.style.filter = `brightness(${1.2 + Math.random() * 0.6})`;
-            });
-        }, 2000);
-    }
-
-    // =================== HANDLE ADD EXPENSE ===================
-    function handleAddExpense(e) {
-        e.preventDefault();
+    
+    // Register new user
+    register(username, password) {
+        // Validate input
+        if (!username || username.length < 3) {
+            return { success: false, message: 'Username must be at least 3 characters' };
+        }
         
-        const expense = {
+        if (!password || password.length < 6) {
+            return { success: false, message: 'Password must be at least 6 characters' };
+        }
+        
+        // Check if user already exists
+        if (this.users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
+            return { success: false, message: 'Username already exists' };
+        }
+        
+        // Create new user
+        const user = {
             id: Date.now(),
-            name: document.getElementById('expenseName').value.trim(),
-            amount: parseFloat(document.getElementById('expenseAmount').value),
-            category: document.getElementById('expenseCategory').value,
-            date: document.getElementById('expenseDate').value
+            username: username,
+            passwordHash: this.hashPassword(password),
+            createdAt: new Date().toISOString(),
+            expenses: []
         };
-
-        if (!expense.name || isNaN(expense.amount) || expense.amount <= 0 || !expense.category) {
-            showNotification('Please fill in all fields correctly', 'warning');
-            return;
+        
+        // Add to users array and save
+        this.users.push(user);
+        this.saveUsers();
+        
+        return { 
+            success: true, 
+            message: 'Registration successful! Please login.' 
+        };
+    }
+    
+    // Login user
+    login(username, password) {
+        // Find user
+        const user = this.users.find(u => u.username.toLowerCase() === username.toLowerCase());
+        
+        if (!user) {
+            return { success: false, message: 'User not found' };
         }
-
-        expenses.push(expense);
-        saveToLocalStorage();
-        renderExpenses();
-        updateSummary();
-        updateCharts();
         
-        // Reset form with current date
-        expenseForm.reset();
-        setDefaultDate(); // Reset to current date
-        
-        // Show success feedback
-        showNotification(`Added $${expense.amount.toFixed(2)} for ${expense.name}`, 'success');
-        
-        // Add dollar sign animation
-        animateDollarSign();
-    }
-
-    // Delete Expense
-    function deleteExpense(id) {
-        const expense = expenses.find(e => e.id === id);
-        if (expense && confirm(`Delete "${expense.name}" for $${expense.amount.toFixed(2)}?`)) {
-            expenses = expenses.filter(e => e.id !== id);
-            saveToLocalStorage();
-            renderExpenses();
-            updateSummary();
-            updateCharts();
-            showNotification('Expense deleted', 'danger');
+        // Verify password
+        const inputHash = this.hashPassword(password);
+        if (user.passwordHash !== inputHash) {
+            return { success: false, message: 'Incorrect password' };
         }
+        
+        // Create session
+        const session = {
+            userId: user.id,
+            username: user.username,
+            token: this.generateToken(),
+            expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+        };
+        
+        // Save session
+        localStorage.setItem('expenseTrackerSession', JSON.stringify(session));
+        this.currentUser = session;
+        
+        return { 
+            success: true, 
+            message: 'Login successful!', 
+            user: session 
+        };
     }
-
-    // Animate dollar sign on expense add
-    function animateDollarSign() {
-        const dollar = document.createElement('div');
-        dollar.className = 'dollar-sign';
-        dollar.style.position = 'fixed';
-        dollar.style.fontSize = '3rem';
-        dollar.style.color = '#FFD700';
-        dollar.style.textShadow = '0 0 30px #FFD700';
-        dollar.style.zIndex = '9999';
-        dollar.style.pointerEvents = 'none';
-        dollar.textContent = '$';
-        
-        // Random position near form
-        dollar.style.left = '50%';
-        dollar.style.top = '50%';
-        
-        document.body.appendChild(dollar);
-        
-        // Animation
-        dollar.animate([
-            { 
-                transform: 'translate(-50%, -50%) scale(1)', 
-                opacity: 1 
-            },
-            { 
-                transform: 'translate(-50%, -150%) scale(2)', 
-                opacity: 0 
-            }
-        ], {
-            duration: 1000,
-            easing: 'ease-out'
-        });
-        
-        // Remove after animation
-        setTimeout(() => dollar.remove(), 1000);
-    }
-
-    // =================== RENDER EXPENSES LIST ===================
-    function renderExpenses() {
-        if (expenses.length === 0) {
-            expensesList.innerHTML = '<p class="empty-message">No expenses yet. Add your first expense!</p>';
-            return;
+    
+    // Generate token
+    generateToken() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let token = '';
+        for (let i = 0; i < 32; i++) {
+            token += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-
-        // Sort by date (newest first)
-        const sortedExpenses = [...expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-        
-        expensesList.innerHTML = sortedExpenses.map(expense => `
-            <div class="expense-item">
-                <div class="expense-info">
-                    <div class="expense-name">${expense.name}</div>
-                    <div class="expense-meta">
-                        <span class="expense-date">${formatDate(expense.date)}</span>
-                        <span class="expense-category">${categoryIcons[expense.category]} ${categoryLabels[expense.category]}</span>
-                    </div>
-                </div>
-                <div class="expense-amount">$${expense.amount.toFixed(2)}</div>
-                <button class="delete-btn" onclick="deleteExpense(${expense.id})" title="Delete expense">
-                    <i class="fas fa-trash-alt"></i>
-                </button>
-            </div>
-        `).join('');
+        return token;
     }
-
-    // =================== UPDATE SUMMARY STATISTICS ===================
-    function updateSummary() {
-        const total = expenses.reduce((sum, exp) => sum + exp.amount, 0);
-        totalExpensesEl.textContent = `$${total.toFixed(2)}`;
-
-        // Current month expenses
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
-        
-        const monthlyTotal = expenses.reduce((sum, exp) => {
-            const expDate = new Date(exp.date);
-            if (expDate.getMonth() === currentMonth && expDate.getFullYear() === currentYear) {
-                return sum + exp.amount;
-            }
-            return sum;
-        }, 0);
-        
-        monthlyExpensesEl.textContent = `$${monthlyTotal.toFixed(2)}`;
-
-        // Daily average (this month)
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const currentDay = now.getDate();
-        const dailyAvg = currentDay > 0 ? monthlyTotal / currentDay : 0;
-        dailyAverageEl.textContent = `$${dailyAvg.toFixed(2)}`;
-
-        // Top category
-        const categoryTotals = {};
-        expenses.forEach(exp => {
-            categoryTotals[exp.category] = (categoryTotals[exp.category] || 0) + exp.amount;
-        });
-        
-        const entries = Object.entries(categoryTotals);
-        if (entries.length > 0) {
-            const [topCategory, topAmount] = entries.reduce((a, b) => a[1] > b[1] ? a : b);
-            topCategoryEl.textContent = `${categoryIcons[topCategory]} ${categoryLabels[topCategory]}`;
-        } else {
-            topCategoryEl.textContent = '-';
-        }
-    }
-
-    // =================== INITIALIZE CHARTS ===================
-    function initializeCharts() {
-        // 1. CATEGORY DISTRIBUTION CHART (Doughnut)
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        categoryChart = new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: categoryColors,
-                    borderWidth: 3,
-                    borderColor: '#000',
-                    hoverBorderColor: '#FFD700',
-                    hoverBorderWidth: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            color: '#fff',
-                            font: {
-                                family: 'Montserrat',
-                                size: 12
-                            },
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#FFD700',
-                        bodyColor: '#fff',
-                        borderColor: '#FFD700',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                const percentage = total > 0 ? Math.round((value / total) * 100) : 0;
-                                return `${label}: $${value.toFixed(2)} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // 2. MONTHLY TREND CHART (Line)
-        const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
-        monthlyChart = new Chart(monthlyCtx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Monthly Expenses',
-                    data: [],
-                    borderColor: '#FFD700',
-                    backgroundColor: 'rgba(255, 215, 0, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointBackgroundColor: '#FFD700',
-                    pointBorderColor: '#000',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 215, 0, 0.1)'
-                        },
-                        ticks: {
-                            color: '#fff'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 215, 0, 0.1)'
-                        },
-                        ticks: {
-                            color: '#fff',
-                            callback: function(value) {
-                                return '$' + value;
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#fff',
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#FFD700',
-                        bodyColor: '#fff',
-                        borderColor: '#FFD700',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                return `$${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-
-        // 3. DAILY SPENDING CHART (Bar)
-        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
-        dailyChart = new Chart(dailyCtx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Daily Spending',
-                    data: [],
-                    backgroundColor: 'rgba(255, 215, 0, 0.6)',
-                    borderColor: '#FFD700',
-                    borderWidth: 2,
-                    borderRadius: 6,
-                    hoverBackgroundColor: 'rgba(255, 215, 0, 0.8)'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 215, 0, 0.1)'
-                        },
-                        ticks: {
-                            color: '#fff'
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(255, 215, 0, 0.1)'
-                        },
-                        ticks: {
-                            color: '#fff',
-                            callback: function(value) {
-                                return '$' + value;
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#fff',
-                            font: {
-                                size: 14
-                            }
-                        }
-                    },
-                    tooltip: {
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        titleColor: '#FFD700',
-                        bodyColor: '#fff',
-                        borderColor: '#FFD700',
-                        borderWidth: 1,
-                        callbacks: {
-                            label: function(context) {
-                                return `$${context.raw.toFixed(2)}`;
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // =================== UPDATE ALL CHARTS INSTANTLY ===================
-    function updateCharts() {
-        updateCategoryChart();
-        updateMonthlyChart();
-        updateDailyChart();
-    }
-
-    // Update Category Distribution Chart
-    function updateCategoryChart() {
-        const categoryData = {};
-        
-        expenses.forEach(exp => {
-            categoryData[exp.category] = (categoryData[exp.category] || 0) + exp.amount;
-        });
-
-        const categories = Object.keys(categoryData);
-        const amounts = Object.values(categoryData);
-
-        categoryChart.data.labels = categories.map(cat => categoryLabels[cat]);
-        categoryChart.data.datasets[0].data = amounts;
-        categoryChart.update();
-    }
-
-    // Update Monthly Trend Chart (last 6 months)
-    function updateMonthlyChart() {
-        const monthlyData = {};
-        const now = new Date();
-        
-        // Initialize last 6 months
-        for (let i = 5; i >= 0; i--) {
-            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-            const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-            monthlyData[key] = 0;
-        }
-
-        // Aggregate expenses by month
-        expenses.forEach(exp => {
-            const expDate = new Date(exp.date);
-            const key = `${expDate.getFullYear()}-${String(expDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    // Get current user from session
+    getCurrentUser() {
+        try {
+            const session = localStorage.getItem('expenseTrackerSession');
+            if (!session) return null;
             
-            if (monthlyData[key] !== undefined) {
-                monthlyData[key] += exp.amount;
+            const parsed = JSON.parse(session);
+            
+            // Check if session expired
+            if (parsed.expiresAt < Date.now()) {
+                this.logout();
+                return null;
             }
-        });
-
-        const months = Object.keys(monthlyData).map(key => {
-            const [year, month] = key.split('-');
-            return new Date(year, month - 1).toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-        });
-        
-        const amounts = Object.values(monthlyData);
-
-        monthlyChart.data.labels = months;
-        monthlyChart.data.datasets[0].data = amounts;
-        monthlyChart.update();
-    }
-
-    // Update Daily Chart (last 7 days)
-    function updateDailyChart() {
-        const dailyData = {};
-        const now = new Date();
-        
-        // Initialize last 7 days
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date(now);
-            date.setDate(date.getDate() - i);
-            const key = date.toISOString().split('T')[0];
-            dailyData[key] = 0;
+            
+            return parsed;
+        } catch (e) {
+            return null;
         }
-
-        // Aggregate expenses by day
-        expenses.forEach(exp => {
-            if (dailyData[exp.date] !== undefined) {
-                dailyData[exp.date] += exp.amount;
-            }
-        });
-
-        const days = Object.keys(dailyData).map(date => 
-            new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-        );
-        
-        const amounts = Object.values(dailyData);
-
-        dailyChart.data.labels = days;
-        dailyChart.data.datasets[0].data = amounts;
-        dailyChart.update();
     }
-
-    // =================== DATA MANAGEMENT FUNCTIONS ===================
-    function exportToCSV() {
-        if (expenses.length === 0) {
-            showNotification('No expenses to export', 'warning');
+    
+    // Logout user
+    logout() {
+        localStorage.removeItem('expenseTrackerSession');
+        this.currentUser = null;
+        location.reload();
+    }
+    
+    // Check if user is authenticated
+    isAuthenticated() {
+        return this.currentUser !== null;
+    }
+    
+    // Get current user's expenses
+    getUserExpenses() {
+        if (!this.currentUser) return [];
+        
+        const user = this.users.find(u => u.id === this.currentUser.userId);
+        return user ? user.expenses : [];
+    }
+    
+    // Save expenses for current user
+    saveUserExpenses(expenses) {
+        if (!this.currentUser) return false;
+        
+        const userIndex = this.users.findIndex(u => u.id === this.currentUser.userId);
+        if (userIndex !== -1) {
+            this.users[userIndex].expenses = expenses;
+            this.saveUsers();
+            return true;
+        }
+        return false;
+    }
+    
+    // Initialize authentication UI
+    initAuth() {
+        // Password visibility toggle
+        const togglePassword = document.getElementById('togglePassword');
+        if (togglePassword) {
+            togglePassword.addEventListener('click', () => {
+                const passwordInput = document.getElementById('password');
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                togglePassword.classList.toggle('fa-eye');
+                togglePassword.classList.toggle('fa-eye-slash');
+            });
+        }
+        
+        // Login button
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            });
+        }
+        
+        // Register button
+        const registerBtn = document.getElementById('registerBtn');
+        if (registerBtn) {
+            registerBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleRegister();
+            });
+        }
+        
+        // Show register form
+        const showRegister = document.getElementById('showRegister');
+        if (showRegister) {
+            showRegister.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showModal('register');
+            });
+        }
+        
+        // Show login form
+        const showLogin = document.getElementById('showLogin');
+        if (showLogin) {
+            showLogin.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showModal('login');
+            });
+        }
+        
+        // Logout button
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to logout?')) {
+                    this.logout();
+                }
+            });
+        }
+        
+        // Enter key for login
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleLogin();
+                }
+            });
+        }
+    }
+    
+    // Handle login
+    handleLogin() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        if (!username || !password) {
+            this.showNotification('Please fill in all fields', 'warning');
             return;
         }
-
-        const headers = ['Date', 'Name', 'Category', 'Amount'];
-        const csvData = expenses.map(exp => [
-            exp.date,
-            exp.name,
-            categoryLabels[exp.category],
-            `$${exp.amount.toFixed(2)}`
-        ]);
-
-        const csv = [headers, ...csvData].map(row => row.join(',')).join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `expenses_${new Date().toISOString().split('T')[0]}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
         
-        showNotification('Expenses exported as CSV', 'success');
+        const result = this.login(username, password);
+        
+        if (result.success) {
+            this.showNotification(result.message, 'success');
+            setTimeout(() => {
+                this.hideModal();
+                this.showDashboard();
+            }, 1000);
+        } else {
+            this.showNotification(result.message, 'danger');
+        }
     }
-
-    function clearAllData() {
-        if (expenses.length === 0) {
-            showNotification('No expenses to clear', 'warning');
+    
+    // Handle registration
+    handleRegister() {
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+        
+        if (!username || !password) {
+            this.showNotification('Please fill in all fields', 'warning');
             return;
         }
-
-        if (confirm('Are you sure you want to delete ALL expenses? This cannot be undone.')) {
-            expenses = [];
-            saveToLocalStorage();
-            renderExpenses();
-            updateSummary();
-            updateCharts();
-            showNotification('All expenses cleared', 'danger');
+        
+        const result = this.register(username, password);
+        
+        if (result.success) {
+            this.showNotification(result.message, 'success');
+            setTimeout(() => {
+                this.showModal('login');
+                // Clear registration form
+                document.getElementById('regUsername').value = '';
+                document.getElementById('regPassword').value = '';
+            }, 1500);
+        } else {
+            this.showNotification(result.message, 'danger');
         }
     }
-
-    function loadSampleData() {
-        const sampleExpenses = [
-            { id: 1, name: 'Groceries', amount: 85.50, category: 'food', date: getDateString(-2) },
-            { id: 2, name: 'Gas', amount: 45.00, category: 'transport', date: getDateString(-1) },
-            { id: 3, name: 'Netflix', amount: 15.99, category: 'entertainment', date: getDateString(-3) },
-            { id: 4, name: 'Electricity Bill', amount: 120.75, category: 'bills', date: getDateString(-5) },
-            { id: 5, name: 'Coffee', amount: 4.50, category: 'food', date: getDateString(0) },
-            { id: 6, name: 'New Shoes', amount: 89.99, category: 'shopping', date: getDateString(-4) },
-            { id: 7, name: 'Gym Membership', amount: 35.00, category: 'health', date: getDateString(-10) },
-            { id: 8, name: 'Online Course', amount: 199.99, category: 'education', date: getDateString(-15) },
-            { id: 9, name: 'Restaurant Dinner', amount: 65.25, category: 'food', date: getDateString(-1) },
-            { id: 10, name: 'Uber Ride', amount: 18.75, category: 'transport', date: getDateString(0) }
-        ];
-
-        expenses = sampleExpenses;
-        saveToLocalStorage();
-        renderExpenses();
-        updateSummary();
-        updateCharts();
-        showNotification('Sample data loaded', 'success');
+    
+    // Show modal
+    showModal(modalType) {
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        
+        if (modalType === 'login') {
+            loginModal.style.display = 'flex';
+            registerModal.style.display = 'none';
+        } else if (modalType === 'register') {
+            loginModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+        }
     }
-
-    // =================== HELPER FUNCTIONS ===================
-    function saveToLocalStorage() {
-        localStorage.setItem('expenses', JSON.stringify(expenses));
+    
+    // Hide modal
+    hideModal() {
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        
+        loginModal.style.display = 'none';
+        registerModal.style.display = 'none';
     }
-
-    function formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { 
-            weekday: 'short', 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric' 
-        });
+    
+    // Show dashboard
+    showDashboard() {
+        // Show main container
+        const container = document.querySelector('.container');
+        if (container) {
+            container.style.display = 'block';
+        }
+        
+        // Display user info
+        this.displayUserInfo();
+        
+        // Initialize expense tracker
+        if (typeof initExpenseTracker === 'function') {
+            initExpenseTracker();
+        }
     }
-
-    function getDateString(daysAgo) {
-        const date = new Date();
-        date.setDate(date.getDate() + daysAgo);
-        return date.toISOString().split('T')[0];
+    
+    // Display user information
+    displayUserInfo() {
+        if (!this.currentUser) return;
+        
+        const userInfo = document.getElementById('userInfo');
+        if (userInfo) {
+            userInfo.style.display = 'flex';
+            userInfo.innerHTML = `
+                <div class="user-avatar">${this.currentUser.username.charAt(0).toUpperCase()}</div>
+                <div>
+                    <div style="font-size: 1rem; color: var(--golden);">${this.currentUser.username}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-secondary);">Active User</div>
+                </div>
+            `;
+        }
     }
-
-    function showNotification(message, type) {
+    
+    // Show notification
+    showNotification(message, type) {
         // Remove existing notification
         const existing = document.querySelector('.notification');
         if (existing) existing.remove();
-
-        // Create notification element
+        
+        // Create notification
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
         
@@ -699,29 +363,27 @@ document.addEventListener('DOMContentLoaded', function() {
             <span>${message}</span>
         `;
         
-        // Add styles
+        // Style notification
         notification.style.cssText = `
             position: fixed;
             top: 30px;
             right: 30px;
-            padding: 20px 25px;
+            padding: 15px 20px;
             background: ${type === 'success' ? 'rgba(32, 201, 151, 0.9)' : 
                          type === 'warning' ? 'rgba(255, 193, 7, 0.9)' : 'rgba(220, 53, 69, 0.9)'};
             color: #000;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            z-index: 9999;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 10000;
             animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             font-weight: 600;
-            max-width: 400px;
-            border: 2px solid ${type === 'success' ? '#20c997' : 
-                              type === 'warning' ? '#ffc107' : '#dc3545'};
+            max-width: 350px;
         `;
         
-        // Add CSS animations
+        // Add CSS animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideInRight {
@@ -744,10 +406,29 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 3000);
     }
+}
 
-    // Make deleteExpense globally accessible
-    window.deleteExpense = deleteExpense;
-
-    // Initialize the application
-    initApp();
+// Initialize authentication when DOM loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize auth system
+    window.authSystem = new AuthSystem();
+    
+    // Check if user is already logged in
+    if (authSystem.isAuthenticated()) {
+        // Hide login modal
+        authSystem.hideModal();
+        
+        // Show dashboard
+        setTimeout(() => {
+            authSystem.showDashboard();
+        }, 500);
+    } else {
+        // Show login modal
+        document.getElementById('loginModal').style.display = 'flex';
+        document.querySelector('.container').style.display = 'none';
+    }
+    
+    // Log initialization
+    console.log('🔐 Auth System Initialized');
+    console.log('👤 Current User:', authSystem.currentUser);
 });
