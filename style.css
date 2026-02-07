@@ -1,471 +1,335 @@
-/* Import modern fonts */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Montserrat:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;600&display=swap');
+/* Add these to the existing style.css */
 
-/* Ultra Dark Theme Variables */
-:root {
-    --golden: #FFD700;
-    --golden-glow: rgba(255, 215, 0, 0.9);
-    --red-glow: rgba(255, 50, 50, 0.9);
-    --deep-red: #B22222;
-    --black: #000000;
-    --darkest: #050505;
-    --darker: #0a0a0a;
-    --dark-bg: #0f0f0f;
-    --card-bg: #121212;
-    --text-bright: #ffffff;
-    --text-primary: #f0f0f0;
-    --text-secondary: #d0d0d0;
-    --accent: #00ffff;
+/* Dashboard Layout */
+.dashboard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 50px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+@media (max-width: 1200px) {
+    .dashboard {
+        grid-template-columns: 1fr;
+    }
 }
 
-body {
-    font-family: 'Montserrat', sans-serif;
-    background: var(--black);
-    color: var(--text-primary);
-    overflow-x: hidden;
-    position: relative;
-    min-height: 100vh;
-    line-height: 1.7;
+/* Cards */
+.input-card, .summary-card, .recent-card, .chart-card, .export-card {
+    background: var(--card-bg);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* ========== LOGIN MODAL - MATCHING EXPENSE TRACKER THEME ========== */
-#loginModal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeIn 0.5s ease;
+.input-card:hover, .summary-card:hover, .recent-card:hover, .chart-card:hover, .export-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 35px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-#registerModal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.95);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.modal-content {
-    background: rgba(5, 5, 5, 0.95);
-    width: 90%;
-    max-width: 450px;
-    border-radius: 20px;
-    padding: 50px;
-    border: 1px solid rgba(255, 215, 0, 0.2);
-    box-shadow: 
-        0 0 50px rgba(255, 215, 0, 0.3),
-        0 0 100px rgba(255, 50, 50, 0.2),
-        inset 0 0 30px rgba(0, 0, 0, 0.5);
-    position: relative;
-    overflow: hidden;
-}
-
-.modal-content::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, 
-        var(--golden), 
-        var(--red-glow), 
-        var(--golden));
-    z-index: -1;
-    filter: blur(15px);
-    opacity: 0.4;
-    border-radius: 22px;
-    animation: border-glow 8s linear infinite;
-}
-
-.modal-header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.modal-header h2 {
+/* Card Headers */
+h2 {
     font-family: 'Orbitron', sans-serif;
-    font-size: 2.2rem;
     color: var(--text-bright);
-    margin-bottom: 15px;
-    border: none;
-    background: linear-gradient(45deg, 
-        var(--golden) 0%, 
-        #ff8c00 25%,
-        var(--deep-red) 50%,
-        #ff4500 75%,
-        var(--golden) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 
-        0 0 40px rgba(255, 215, 0, 0.5),
-        0 0 80px rgba(255, 69, 0, 0.3);
-}
-
-.modal-header h2::after {
-    display: none;
-}
-
-.modal-header .tagline {
-    font-family: 'JetBrains Mono', monospace;
-    color: var(--text-bright);
-    font-size: 1.1rem;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    font-weight: 600;
-}
-
-.login-form {
-    margin-top: 30px;
-}
-
-.login-form .form-group {
+    font-size: 1.8rem;
     margin-bottom: 25px;
-    position: relative;
-}
-
-.login-form label {
-    display: block;
-    color: var(--golden);
-    margin-bottom: 10px;
-    font-weight: 600;
-    font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    display: flex;
+    align-items: center;
 }
 
-.login-form label i {
-    margin-right: 10px;
+/* Form Styling */
+.form-group {
+    margin-bottom: 25px;
 }
 
-.login-form input {
-    width: 100%;
-    padding: 16px;
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid rgba(255, 215, 0, 0.2);
-    border-radius: 10px;
-    color: var(--text-bright);
-    font-size: 1rem;
-    font-family: 'Montserrat', sans-serif;
-    transition: all 0.3s ease;
-}
-
-.login-form input:focus {
-    outline: none;
-    border-color: var(--golden);
-    box-shadow: 0 0 20px var(--golden-glow);
-    background: rgba(0, 0, 0, 0.9);
-}
-
-.password-toggle {
-    position: absolute;
-    right: 15px;
-    top: 40px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.3s ease;
-    font-size: 1.1rem;
-}
-
-.password-toggle:hover {
-    color: var(--golden);
-}
-
-.btn-login, .btn-register {
+input, select {
     width: 100%;
     padding: 18px;
-    background: linear-gradient(135deg, var(--golden), var(--deep-red));
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid var(--golden);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+input::placeholder {
+    color: var(--text-secondary);
+}
+
+/* Buttons */
+.btn-add {
+    background: linear-gradient(45deg, var(--golden), #ff8c00);
     color: var(--black);
     border: none;
-    border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    padding: 18px 30px;
     font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+}
+
+.btn-add:hover {
+    background: linear-gradient(45deg, #ff8c00, var(--golden));
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.6);
+}
+
+.btn-export, .btn-clear, .btn-sample {
+    padding: 15px 25px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    letter-spacing: 1px;
     text-transform: uppercase;
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
-    margin-top: 20px;
-    margin-bottom: 20px;
+    letter-spacing: 1px;
+    flex: 1;
+    min-width: 150px;
 }
 
-.btn-login:hover, .btn-register:hover {
-    background: linear-gradient(135deg, var(--golden-glow), var(--red-glow));
+.export-controls {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-export {
+    background: linear-gradient(45deg, var(--golden), #ff8c00);
+    color: var(--black);
+}
+
+.btn-clear {
+    background: linear-gradient(45deg, var(--deep-red), #ff4500);
+    color: var(--text-bright);
+}
+
+.btn-sample {
+    background: linear-gradient(45deg, var(--accent), #0080ff);
+    color: var(--black);
+}
+
+.btn-export:hover, .btn-clear:hover, .btn-sample:hover {
     transform: translateY(-3px);
-    box-shadow: 0 0 40px var(--golden-glow);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
 }
 
-.register-link {
+/* Summary Stats */
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+
+.stat-item {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 215, 0, 0.2);
     text-align: center;
-    color: var(--text-secondary);
-    font-size: 0.95rem;
 }
 
-.register-link a {
-    color: var(--golden);
-    text-decoration: none;
-    font-weight: 600;
+.stat-label {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-value {
+    display: block;
+    color: var(--text-bright);
+    font-size: 2rem;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+    text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+/* Expenses List */
+.expenses-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.expense-item {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border-left: 4px solid var(--golden);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     transition: all 0.3s ease;
 }
 
-.register-link a:hover {
-    color: var(--accent);
-    text-shadow: 0 0 10px var(--accent);
+.expense-item:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateX(5px);
 }
 
-/* User Info & Logout */
-.user-info {
-    position: absolute;
-    top: 20px;
-    left: 20px;
+.expense-info {
+    flex: 1;
+}
+
+.expense-name {
+    display: block;
+    color: var(--text-bright);
+    font-weight: 600;
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+.expense-category {
+    display: inline-block;
+    background: rgba(255, 215, 0, 0.1);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: var(--golden);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.expense-details {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: var(--golden);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
-    z-index: 1000;
+    gap: 20px;
 }
 
-.user-avatar {
+.expense-amount {
+    color: var(--text-bright);
+    font-size: 1.4rem;
+    font-weight: bold;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.expense-date {
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+}
+
+.btn-delete {
+    background: rgba(178, 34, 34, 0.8);
+    color: white;
+    border: none;
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, var(--golden), var(--deep-red));
     border-radius: 50%;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    color: var(--black);
-    font-size: 1.2rem;
-}
-
-.logout-container {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-#logoutBtn {
-    background: rgba(255, 50, 50, 0.1);
-    border: 1px solid rgba(255, 50, 50, 0.3);
-    color: var(--red-glow);
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 600;
     transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
-#logoutBtn:hover {
-    background: rgba(255, 50, 50, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 0 20px var(--red-glow);
+.btn-delete:hover {
+    background: rgba(255, 50, 50, 1);
+    transform: scale(1.1);
 }
 
-/* ========== EXISTING EXPENSE TRACKER STYLES ========== */
-/* (Keep all your existing expense tracker styles below) */
-.cosmic-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -3;
-    background: linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #000000 50%, #0a0a0a 75%, #000000 100%);
-    opacity: 0.9;
-}
-
-.glow-edge {
-    position: fixed;
-    pointer-events: none;
-    z-index: -1;
-    filter: brightness(1.5);
-}
-
-.glow-top {
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        var(--golden) 25%,
-        var(--red-glow) 50%,
-        var(--golden) 75%,
-        transparent 100%);
-    box-shadow: 0 0 30px var(--golden-glow), 0 0 60px var(--red-glow);
-    animation: glow-pulse 3s ease-in-out infinite;
-}
-
-.glow-right {
-    top: 0;
-    right: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, 
-        transparent 0%, 
-        var(--red-glow) 25%,
-        var(--golden) 50%,
-        var(--red-glow) 75%,
-        transparent 100%);
-    box-shadow: -10px 0 30px var(--red-glow), -20px 0 60px var(--golden-glow);
-    animation: glow-pulse 4s ease-in-out infinite reverse;
-}
-
-.glow-bottom {
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, 
-        transparent 0%, 
-        var(--golden) 25%,
-        var(--red-glow) 50%,
-        var(--golden) 75%,
-        transparent 100%);
-    box-shadow: 0 0 30px var(--golden-glow), 0 0 60px var(--red-glow);
-    animation: glow-pulse 3.5s ease-in-out infinite;
-}
-
-.glow-left {
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: linear-gradient(180deg, 
-        transparent 0%, 
-        var(--red-glow) 25%,
-        var(--golden) 50%,
-        var(--red-glow) 75%,
-        transparent 100%);
-    box-shadow: 10px 0 30px var(--red-glow), 20px 0 60px var(--golden-glow);
-    animation: glow-pulse 4.5s ease-in-out infinite reverse;
-}
-
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 50px 20px;
+/* Chart Containers */
+.chart-container {
+    height: 300px;
     position: relative;
 }
 
-header {
+/* Footer */
+footer {
     text-align: center;
-    padding: 60px 0;
+    padding: 40px 0;
     background: rgba(0, 0, 0, 0.95);
     border-radius: 15px;
-    margin-bottom: 40px;
-    border: 1px solid rgba(255, 215, 0, 0.1);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.1), inset 0 0 30px rgba(0, 0, 0, 0.5);
-    position: relative;
-    overflow: hidden;
+    border-top: 1px solid rgba(255, 215, 0, 0.1);
+    margin-top: 50px;
 }
 
-.logo {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 3.2rem;
-    font-weight: 900;
-    background: linear-gradient(45deg, 
-        var(--golden) 0%, 
-        #ff8c00 25%,
-        var(--deep-red) 50%,
-        #ff4500 75%,
-        var(--golden) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 
-        0 0 40px rgba(255, 215, 0, 0.5),
-        0 0 80px rgba(255, 69, 0, 0.3);
-    margin-bottom: 15px;
-    letter-spacing: 1px;
+footer p {
+    margin: 15px 0;
+    color: var(--text-primary);
 }
 
-.tagline {
+.signature {
+    color: var(--golden) !important;
     font-family: 'JetBrains Mono', monospace;
-    color: var(--text-bright);
-    font-size: 1.3rem;
-    margin-bottom: 40px;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-    font-weight: 600;
-}
-
-.contact-highlight {
-    display: inline-block;
-    padding: 20px 40px;
-    background: rgba(0, 0, 0, 0.9);
-    border-radius: 12px;
-    border: 2px solid var(--golden);
-    box-shadow: 0 0 25px var(--golden-glow), inset 0 0 15px rgba(255, 215, 0, 0.1);
-    margin: 30px 0;
-}
-
-.contact-highlight p {
-    margin: 12px 0;
-    color: var(--text-bright);
     font-size: 1.1rem;
-    font-weight: 600;
+    letter-spacing: 1px;
+    margin-top: 20px !important;
 }
 
-/* Add all your existing expense tracker styles below this line */
-/* ... keep all your existing CSS for charts, forms, etc. ... */
+/* Animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
 
 @keyframes glow-pulse {
-    0%, 100% { opacity: 0.8; filter: brightness(1.2); }
-    50% { opacity: 1; filter: brightness(1.5); }
+    0%, 100% {
+        opacity: 0.8;
+        box-shadow: 0 0 30px var(--golden-glow), 0 0 60px var(--red-glow), 0 0 90px rgba(255, 50, 50, 0.5);
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 40px var(--golden-glow), 0 0 80px var(--red-glow), 0 0 120px rgba(255, 50, 50, 0.7);
+    }
 }
 
-@keyframes border-glow {
-    0% { background-position: 0% 50%; opacity: 0.4; }
-    50% { background-position: 100% 50%; opacity: 0.7; }
-    100% { background-position: 0% 50%; opacity: 0.4; }
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .modal-content {
-        padding: 30px 20px;
-        width: 95%;
-    }
-    
-    .modal-header h2 {
-        font-size: 1.8rem;
-    }
-    
-    .logo {
-        font-size: 2.2rem;
-    }
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, var(--golden), var(--deep-red));
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, var(--deep-red), var(--golden));
 }
