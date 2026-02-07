@@ -1,38 +1,79 @@
-// SIMPLE WORKING AUTHENTICATION SYSTEM
-// auth.js - Working Authentication for Expense Tracker
-
+// auth.js - Complete Authentication System with User Data Storage
 class AuthSystem {
     constructor() {
-        console.log('🔐 Auth System Initializing...');
+        console.log('🔐 Auth System Initialized');
         this.users = this.loadUsers();
         this.currentUser = this.getCurrentUser();
         this.initAuth();
     }
     
+    // ================= PASSWORD HASHING =================
+    // Simple but effective password hashing
+    hashPassword(password) {
+        // Create a more secure hash with salt
+        const salt = 'expense-tracker-2024'; // Add your own salt
+        let hash = 0;
+        
+        // Combine password with salt
+        const saltedPassword = password + salt;
+        
+        // Create hash
+        for (let i = 0; i < saltedPassword.length; i++) {
+            const char = saltedPassword.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; // Convert to 32-bit integer
+        }
+        
+        // Add timestamp to make unique
+        const timestamp = Date.now();
+        return hash.toString(36) + timestamp.toString(36);
+    }
+    
+    // Verify password
+    verifyPassword(inputPassword, storedHash) {
+        // For demo purposes - in production use proper hashing
+        // Since we're using simple hashing, we'll create new hash and compare
+        const salt = 'expense-tracker-2024';
+        const saltedPassword = inputPassword + salt;
+        let hash = 0;
+        
+        for (let i = 0; i < saltedPassword.length; i++) {
+            const char = saltedPassword.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        
+        // Extract the hash part (before timestamp)
+        const inputHash = hash.toString(36);
+        const storedHashPart = storedHash.substring(0, storedHash.length - 13); // Remove timestamp
+        
+        return inputHash === storedHashPart;
+    }
+    
+    // ================= USER DATA STORAGE =================
     // Load users from localStorage
     loadUsers() {
         try {
             const users = localStorage.getItem('expenseTrackerUsers');
-            console.log('📂 Loading users from localStorage:', users);
-            return users ? JSON.parse(users) : [
-                // Default demo user
-                {
+            if (users) {
+                const parsed = JSON.parse(users);
+                console.log('📂 Loaded users:', parsed.length);
+                return parsed;
+            } else {
+                console.log('📂 No users found, creating demo user');
+                // Create demo user
+                const demoUser = {
                     id: 1,
                     username: 'demo',
-                    password: 'demo123',
-                    expenses: []
-                }
-            ];
-        } catch (e) {
-            console.error('Error loading users:', e);
-            return [
-                {
-                    id: 1,
-                    username: 'demo',
-                    password: 'demo123',
-                    expenses: []
-                }
-            ];
+                    passwordHash: this.hashPassword('demo123'),
+                    expenses: [],
+                    createdAt: new Date().toISOString()
+                };
+                return [demoUser];
+            }
+        } catch (error) {
+            console.error('❌ Error loading users:', error);
+            return [];
         }
     }
     
@@ -41,197 +82,225 @@ class AuthSystem {
         try {
             localStorage.setItem('expenseTrackerUsers', JSON.stringify(this.users));
             console.log('💾 Users saved:', this.users.length, 'users');
-        } catch (e) {
-            console.error('Error saving users:', e);
+            return true;
+        } catch (error) {
+            console.error('❌ Error saving users:', error);
+            return false;
         }
     }
     
-    // Register new user - SIMPLE VERSION
+    // ================= USER REGISTRATION =================
     register(username, password) {
-        console.log('🔄 Register attempt:', username);
+        console.log('🔄 Registration attempt:', username);
         
-        // Basic validation
-        if (!username || username.length < 3) {
-            this.showAlert('Username must be at least 3 characters');
+        // Input validation
+        if (!username || username.trim().length < 3) {
+            this.showAlert('Username must be at least 3 characters', 'error');
             return false;
         }
         
         if (!password || password.length < 6) {
-            this.showAlert('Password must be at least 6 characters');
+            this.showAlert('Password must be at least 6 characters', 'error');
             return false;
         }
         
-        // Check if user exists
-        if (this.users.find(u => u.username === username)) {
-            this.showAlert('Username already exists');
+        const cleanUsername = username.trim();
+        
+        // Check if username already exists
+        const existingUser = this.users.find(u => 
+            u.username.toLowerCase() === cleanUsername.toLowerCase()
+        );
+        
+        if (existingUser) {
+            this.showAlert('Username already exists', 'error');
             return false;
         }
         
-        // Create new user
+        // Create new user object
         const newUser = {
-            id: Date.now(),
-            username: username,
-            password: password, // In production, hash this!
-            expenses: [],
-            createdAt: new Date().toISOString()
+            id: Date.now(), // Unique ID based on timestamp
+            username: cleanUsername,
+            passwordHash: this.hashPassword(password),
+            expenses: [], // Start with empty expenses
+            createdAt: new Date().toISOString(),
+            lastLogin: null
         };
         
-        // Add to users
+        // Add to users array
         this.users.push(newUser);
-        this.saveUsers();
         
-        this.showAlert('Registration successful! Please login.', 'success');
-        return true;
+        // Save to localStorage
+        const saved = this.saveUsers();
+        
+        if (saved) {
+            console.log('✅ User registered:', cleanUsername);
+            this.showAlert('Registration successful! You can now login.', 'success');
+            return true;
+        } else {
+            this.showAlert('Registration failed. Please try again.', 'error');
+            return false;
+        }
     }
     
-    // Login user - SIMPLE VERSION
+    // ================= USER LOGIN =================
     login(username, password) {
         console.log('🔑 Login attempt:', username);
         
-        // Basic validation
+        // Input validation
         if (!username || !password) {
-            this.showAlert('Please enter username and password');
+            this.showAlert('Please enter username and password', 'error');
             return false;
         }
         
-        // Find user
-        const user = this.users.find(u => u.username === username && u.password === password);
+        const cleanUsername = username.trim();
+        
+        // Find user by username
+        const user = this.users.find(u => 
+            u.username.toLowerCase() === cleanUsername.toLowerCase()
+        );
         
         if (!user) {
-            // Auto-create demo user if login fails
-            if (username === 'demo' && password === 'demo123') {
-                const demoUser = {
-                    id: 999,
-                    username: 'demo',
-                    password: 'demo123',
-                    expenses: []
-                };
-                this.users.push(demoUser);
-                this.saveUsers();
-                this.authenticateUser(demoUser);
-                return true;
-            }
-            this.showAlert('Invalid username or password');
+            this.showAlert('User not found', 'error');
             return false;
         }
         
-        // Authenticate user
-        this.authenticateUser(user);
-        return true;
-    }
-    
-    // Authenticate user and save session
-    authenticateUser(user) {
-        console.log('✅ Authenticating user:', user.username);
+        // Verify password
+        const passwordValid = this.verifyPassword(password, user.passwordHash);
+        
+        if (!passwordValid) {
+            this.showAlert('Incorrect password', 'error');
+            return false;
+        }
+        
+        // Update last login
+        user.lastLogin = new Date().toISOString();
+        this.saveUsers();
         
         // Create session
         const session = {
             userId: user.id,
             username: user.username,
             token: this.generateToken(),
-            expiresAt: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+            expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days
         };
         
-        // Save session
+        // Save session to localStorage
         localStorage.setItem('expenseTrackerSession', JSON.stringify(session));
         this.currentUser = session;
         
-        // Show success message
+        console.log('✅ Login successful:', user.username);
         this.showAlert('Login successful!', 'success');
         
-        // Redirect to dashboard
+        // Show dashboard after delay
         setTimeout(() => {
             this.showDashboard();
         }, 1000);
-    }
-    
-    // Generate simple token
-    generateToken() {
-        return Math.random().toString(36).substring(2) + Date.now().toString(36);
-    }
-    
-    // Get current user from session
-    getCurrentUser() {
-        try {
-            const session = localStorage.getItem('expenseTrackerSession');
-            if (!session) {
-                console.log('No session found');
-                return null;
-            }
-            
-            const parsed = JSON.parse(session);
-            
-            // Check if session expired
-            if (parsed.expiresAt < Date.now()) {
-                console.log('Session expired');
-                localStorage.removeItem('expenseTrackerSession');
-                return null;
-            }
-            
-            console.log('Current user found:', parsed.username);
-            return parsed;
-        } catch (e) {
-            console.error('Error getting current user:', e);
-            return null;
-        }
-    }
-    
-    // Logout user
-    logout() {
-        console.log('👋 Logging out user:', this.currentUser?.username);
-        localStorage.removeItem('expenseTrackerSession');
-        this.currentUser = null;
-        this.showAlert('Logged out successfully');
         
-        // Reload page to show login screen
-        setTimeout(() => {
-            location.reload();
-        }, 1000);
+        return true;
     }
     
-    // Check if user is authenticated
-    isAuthenticated() {
-        const isAuth = this.currentUser !== null;
-        console.log('🔐 Authentication check:', isAuth);
-        return isAuth;
-    }
-    
+    // ================= USER DATA MANAGEMENT =================
     // Get current user's expenses
     getUserExpenses() {
         if (!this.currentUser) {
-            console.log('No user logged in for expenses');
+            console.log('⚠️ No user logged in');
             return [];
         }
         
         const user = this.users.find(u => u.id === this.currentUser.userId);
-        const expenses = user ? user.expenses : [];
-        console.log('📊 User expenses:', expenses.length, 'items');
-        return expenses;
+        if (user) {
+            console.log('📊 Found user expenses:', user.expenses.length);
+            return user.expenses;
+        }
+        
+        return [];
     }
     
     // Save expenses for current user
     saveUserExpenses(expenses) {
         if (!this.currentUser) {
-            console.error('Cannot save expenses: No user logged in');
+            console.error('❌ Cannot save: No user logged in');
             return false;
         }
         
-        console.log('💾 Saving expenses:', expenses.length, 'items');
-        
         const userIndex = this.users.findIndex(u => u.id === this.currentUser.userId);
-        if (userIndex !== -1) {
-            this.users[userIndex].expenses = expenses;
-            this.saveUsers();
+        
+        if (userIndex === -1) {
+            console.error('❌ User not found');
+            return false;
+        }
+        
+        // Update user's expenses
+        this.users[userIndex].expenses = expenses;
+        
+        // Save to localStorage
+        const saved = this.saveUsers();
+        
+        if (saved) {
+            console.log('💾 Expenses saved for user:', this.currentUser.username);
             return true;
         }
         
-        console.error('User not found for saving expenses');
         return false;
     }
     
-    // Initialize authentication UI
+    // ================= SESSION MANAGEMENT =================
+    generateToken() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let token = '';
+        for (let i = 0; i < 32; i++) {
+            token += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return token;
+    }
+    
+    getCurrentUser() {
+        try {
+            const sessionData = localStorage.getItem('expenseTrackerSession');
+            
+            if (!sessionData) {
+                return null;
+            }
+            
+            const session = JSON.parse(sessionData);
+            
+            // Check if session is expired
+            if (session.expiresAt < Date.now()) {
+                localStorage.removeItem('expenseTrackerSession');
+                return null;
+            }
+            
+            console.log('👤 Current user session:', session.username);
+            return session;
+            
+        } catch (error) {
+            console.error('❌ Error getting current user:', error);
+            return null;
+        }
+    }
+    
+    logout() {
+        console.log('👋 Logging out user:', this.currentUser?.username);
+        
+        // Remove session
+        localStorage.removeItem('expenseTrackerSession');
+        this.currentUser = null;
+        
+        this.showAlert('Logged out successfully', 'success');
+        
+        // Reload page after delay
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    }
+    
+    isAuthenticated() {
+        return this.currentUser !== null;
+    }
+    
+    // ================= UI CONTROLS =================
     initAuth() {
-        console.log('🖱️ Initializing auth UI...');
+        console.log('🖱️ Setting up auth UI...');
         
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
@@ -252,7 +321,6 @@ class AuthSystem {
         if (loginBtn) {
             loginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Login button clicked');
                 this.handleLogin();
             });
         }
@@ -262,27 +330,23 @@ class AuthSystem {
         if (registerBtn) {
             registerBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Register button clicked');
                 this.handleRegister();
             });
         }
         
-        // Show register form
+        // Modal navigation
         const showRegister = document.getElementById('showRegister');
         if (showRegister) {
             showRegister.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Show register clicked');
                 this.showModal('register');
             });
         }
         
-        // Show login form
         const showLogin = document.getElementById('showLogin');
         if (showLogin) {
             showLogin.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Show login clicked');
                 this.showModal('login');
             });
         }
@@ -292,195 +356,107 @@ class AuthSystem {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('Logout button clicked');
                 if (confirm('Are you sure you want to logout?')) {
                     this.logout();
                 }
             });
         }
         
-        // Enter key for forms
-        const setupEnterKey = (inputId, callback) => {
-            const input = document.getElementById(inputId);
-            if (input) {
-                input.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        callback();
-                    }
-                });
-            }
-        };
+        // Enter key support
+        this.setupEnterKey('username', () => this.handleLogin());
+        this.setupEnterKey('password', () => this.handleLogin());
+        this.setupEnterKey('regUsername', () => this.handleRegister());
+        this.setupEnterKey('regPassword', () => this.handleRegister());
         
-        setupEnterKey('username', () => this.handleLogin());
-        setupEnterKey('password', () => this.handleLogin());
-        setupEnterKey('regUsername', () => this.handleRegister());
-        setupEnterKey('regPassword', () => this.handleRegister());
-        
-        console.log('✅ Auth UI initialized');
+        console.log('✅ Auth UI ready');
     }
     
-    // Handle login
+    setupEnterKey(inputId, callback) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    callback();
+                }
+            });
+        }
+    }
+    
     handleLogin() {
-        console.log('🔄 Handling login...');
+        const username = document.getElementById('username')?.value || '';
+        const password = document.getElementById('password')?.value || '';
         
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        
-        if (!usernameInput || !passwordInput) {
-            console.error('Login inputs not found');
-            this.showAlert('Login form error. Please refresh page.');
-            return;
-        }
-        
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
-        
-        console.log('Login credentials:', { username, password: '***' });
-        
-        if (!username || !password) {
-            this.showAlert('Please enter username and password');
-            return;
-        }
-        
-        // Attempt login
-        const success = this.login(username, password);
-        
-        if (!success) {
-            // Login failed
-            console.log('Login failed');
-        }
+        this.login(username, password);
     }
     
-    // Handle registration
     handleRegister() {
-        console.log('🔄 Handling registration...');
+        const username = document.getElementById('regUsername')?.value || '';
+        const password = document.getElementById('regPassword')?.value || '';
         
-        const usernameInput = document.getElementById('regUsername');
-        const passwordInput = document.getElementById('regPassword');
-        
-        if (!usernameInput || !passwordInput) {
-            console.error('Register inputs not found');
-            this.showAlert('Registration form error. Please refresh page.');
-            return;
-        }
-        
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value;
-        
-        console.log('Register credentials:', { username, password: '***' });
-        
-        // Attempt registration
         const success = this.register(username, password);
         
         if (success) {
-            // Switch to login modal
+            // Clear form and switch to login
             setTimeout(() => {
                 this.showModal('login');
-                // Clear registration form
-                usernameInput.value = '';
-                passwordInput.value = '';
+                document.getElementById('regUsername').value = '';
+                document.getElementById('regPassword').value = '';
             }, 1500);
         }
     }
     
-    // Show modal
     showModal(modalType) {
-        console.log('Showing modal:', modalType);
-        
         const loginModal = document.getElementById('loginModal');
         const registerModal = document.getElementById('registerModal');
-        
-        if (!loginModal || !registerModal) {
-            console.error('Modals not found');
-            return;
-        }
         
         if (modalType === 'login') {
-            loginModal.style.display = 'flex';
-            registerModal.style.display = 'none';
-        } else if (modalType === 'register') {
-            loginModal.style.display = 'none';
-            registerModal.style.display = 'flex';
+            if (loginModal) loginModal.style.display = 'flex';
+            if (registerModal) registerModal.style.display = 'none';
+        } else {
+            if (loginModal) loginModal.style.display = 'none';
+            if (registerModal) registerModal.style.display = 'flex';
         }
     }
     
-    // Hide modal
-    hideModal() {
-        console.log('Hiding modals');
-        
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        
-        if (loginModal) loginModal.style.display = 'none';
-        if (registerModal) registerModal.style.display = 'none';
-    }
-    
-    // Show dashboard
     showDashboard() {
-        console.log('🎯 Showing dashboard...');
+        // Hide login modal
+        this.showModal('none');
         
-        // Hide modals
-        this.hideModal();
-        
-        // Show main container
+        // Show main content
         const container = document.querySelector('.container');
         if (container) {
             container.style.display = 'block';
-            console.log('📱 Container shown');
         }
         
-        // Display user info
+        // Show user info
         this.displayUserInfo();
         
         // Initialize expense tracker
         if (typeof initExpenseTracker === 'function') {
-            console.log('🚀 Initializing expense tracker...');
             setTimeout(() => {
                 initExpenseTracker();
             }, 500);
-        } else {
-            console.error('initExpenseTracker function not found');
         }
     }
     
-    // Display user information
     displayUserInfo() {
-        if (!this.currentUser) {
-            console.log('No user to display');
-            return;
+        if (!this.currentUser) return;
+        
+        const userInfoDiv = document.getElementById('userInfo');
+        if (userInfoDiv) {
+            userInfoDiv.innerHTML = `
+                <div class="user-avatar">${this.currentUser.username.charAt(0).toUpperCase()}</div>
+                <div>
+                    <div style="color: #FFD700; font-size: 1rem;">${this.currentUser.username}</div>
+                    <div style="color: #d0d0d0; font-size: 0.7rem;">Expense Tracker</div>
+                </div>
+            `;
+            userInfoDiv.style.display = 'flex';
         }
-        
-        console.log('👤 Displaying user info:', this.currentUser.username);
-        
-        // Create or update user info display
-        let userInfo = document.getElementById('userInfo');
-        if (!userInfo) {
-            userInfo = document.createElement('div');
-            userInfo.id = 'userInfo';
-            userInfo.className = 'user-info';
-            
-            // Add to header
-            const header = document.querySelector('header');
-            if (header) {
-                header.appendChild(userInfo);
-            }
-        }
-        
-        userInfo.style.display = 'flex';
-        userInfo.innerHTML = `
-            <div class="user-avatar">${this.currentUser.username.charAt(0).toUpperCase()}</div>
-            <div>
-                <div style="font-size: 1rem; color: #FFD700;">${this.currentUser.username}</div>
-                <div style="font-size: 0.7rem; color: #d0d0d0;">Expense Tracker</div>
-            </div>
-        `;
     }
     
-    // Show alert/notification
     showAlert(message, type = 'info') {
-        console.log(`Alert [${type}]:`, message);
-        
         // Remove existing alerts
         const existing = document.querySelector('.auth-alert');
         if (existing) existing.remove();
@@ -488,8 +464,15 @@ class AuthSystem {
         // Create alert
         const alert = document.createElement('div');
         alert.className = `auth-alert auth-alert-${type}`;
+        
+        // Set icon based on type
+        let icon = 'info-circle';
+        if (type === 'success') icon = 'check-circle';
+        if (type === 'error') icon = 'exclamation-circle';
+        if (type === 'warning') icon = 'exclamation-triangle';
+        
         alert.innerHTML = `
-            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+            <i class="fas fa-${icon}"></i>
             <span>${message}</span>
         `;
         
@@ -499,26 +482,28 @@ class AuthSystem {
             top: 20px;
             right: 20px;
             padding: 15px 20px;
-            background: ${type === 'success' ? 'rgba(32, 201, 151, 0.9)' : 
-                         type === 'info' ? 'rgba(0, 123, 255, 0.9)' : 'rgba(220, 53, 69, 0.9)'};
+            background: ${type === 'success' ? 'rgba(32, 201, 151, 0.95)' : 
+                         type === 'error' ? 'rgba(220, 53, 69, 0.95)' : 
+                         'rgba(0, 123, 255, 0.95)'};
             color: white;
             border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
             z-index: 10000;
             animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
             display: flex;
             align-items: center;
             gap: 10px;
             font-weight: 600;
-            max-width: 350px;
+            max-width: 400px;
             border-left: 4px solid ${type === 'success' ? '#20c997' : 
-                               type === 'info' ? '#007bff' : '#dc3545'};
+                               type === 'error' ? '#dc3545' : '#007bff'};
         `;
         
-        // Add animation styles if not present
-        if (!document.querySelector('#auth-alert-styles')) {
+        // Add animations
+        const styleId = 'auth-alert-animations';
+        if (!document.getElementById(styleId)) {
             const style = document.createElement('style');
-            style.id = 'auth-alert-styles';
+            style.id = styleId;
             style.textContent = `
                 @keyframes slideInRight {
                     from { transform: translateX(100%); opacity: 0; }
@@ -540,62 +525,37 @@ class AuthSystem {
                 alert.remove();
             }
         }, 3000);
-        
-        return alert;
     }
 }
 
-// Initialize authentication when DOM loads
+// ================= INITIALIZATION =================
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('📄 DOM Content Loaded');
+    console.log('🚀 Initializing authentication system...');
     
-    // Initialize auth system
+    // Create global auth system
     window.authSystem = new AuthSystem();
     
     // Check if user is already logged in
     if (authSystem.isAuthenticated()) {
-        console.log('✅ User already authenticated, showing dashboard');
-        
-        // Hide login modal
-        authSystem.hideModal();
-        
-        // Show dashboard immediately
+        console.log('✅ User is logged in, showing dashboard');
         authSystem.showDashboard();
     } else {
-        console.log('🔒 User not authenticated, showing login');
-        
-        // Show login modal
-        const loginModal = document.getElementById('loginModal');
-        const container = document.querySelector('.container');
-        
-        if (loginModal) {
-            loginModal.style.display = 'flex';
-            console.log('👁️ Login modal shown');
-        }
-        
-        if (container) {
-            container.style.display = 'none';
-            console.log('📦 Container hidden');
-        }
+        console.log('🔒 Showing login screen');
+        document.getElementById('loginModal').style.display = 'flex';
+        document.querySelector('.container').style.display = 'none';
     }
     
-    // Auto-fill demo credentials for testing
+    // Demo credentials hint
     setTimeout(() => {
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
         
         if (usernameInput && passwordInput && 
             !usernameInput.value && !passwordInput.value) {
-            usernameInput.value = 'demo';
-            passwordInput.value = 'demo123';
-            console.log('🧪 Demo credentials auto-filled');
+            usernameInput.placeholder = 'demo';
+            passwordInput.placeholder = 'demo123';
         }
-    }, 1000);
+    }, 500);
     
-    console.log('🎉 Auth System Ready!');
+    console.log('🎉 Authentication system ready!');
 });
-
-// Make auth system accessible globally
-if (typeof window !== 'undefined') {
-    window.AuthSystem = AuthSystem;
-}
